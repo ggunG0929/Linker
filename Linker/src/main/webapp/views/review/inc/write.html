@@ -1,0 +1,38 @@
+<html xmlns="http://www.thymeleaf.org">
+<form action="">
+	<table>
+		<tr>
+			<td>
+				<h1>후기 작성</h1>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="text" />
+			</td>
+		</tr>
+		<tr>
+			<td width="1200px">
+				<!-- Form안에 이 textarea만 넣으세요 -->
+				<textarea name="ir1" id="ir1"
+				 rows="10" cols="100">작성할 내용을 입력해주세요.</textarea>
+			</td>
+		</tr>
+	</table>
+</form>
+
+<!-- 에디터 사용 시 이쪽만 복사 -->
+<script type="text/javascript" src="/editor/js/service/HuskyEZCreator.js" charset="utf-8"></script>
+<script th:inline="javascript">
+	// 나중에 session.memberId로 변경 필요
+	var writer = '작성자';
+</script>
+<script type="text/javascript">
+var oEditors = [];
+nhn.husky.EZCreator.createInIFrame({
+ oAppRef: oEditors,
+ elPlaceHolder: "ir1",
+ sSkinURI: "/editor/SmartEditor2Skin.html?writer="+writer,
+ fCreator: "createSEditor2"
+});
+</script>

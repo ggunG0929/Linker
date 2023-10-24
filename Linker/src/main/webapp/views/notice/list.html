@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+  <h1>공지사항 목록</h1>
+  		<!-- 공지사항 검색창 -->
+			<div class="section">
+				<form id="searchForm" action="/notice/list" method="GET" class="notice-search-form">
+					<select id="type" name="type" class="search-select">
+						<option value="title" th:selected="${type == 'title'}">제목</option>
+						<option value="content" th:selected="${type == 'content'}">내용</option>
+						<option value="user" th:selected="${type == 'writer'}">작성자</option>
+						<option value="titleAndContent" th:selected="${type == 'titleAndContent'}">제목과 내용</option>
+					</select>
+					<input type="text" id="keyword" name="keyword" class="search-input"
+						placeholder="검색어 입력 후 Enter를 눌러주세요">
+					<button type="submit" class="search-all">전체보기</button>
+				</form>
+			</div>
+    <table>
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성일</th>
+            <th>작성자</th>
+            <th>조회수</th>
+        </tr>
+        <tr th:each="notice : ${notice}">
+            <td th:text="${notice.noticeId}"></td>
+            <td><a th:href="@{/notice/detail/{id}(id=${notice.noticeId})}" th:text="${notice.noticeTitle}"></a></td>
+            <td th:text="${#dates.format(notice.noticeRegDate, 'yyyy년 MM월 dd일 HH:mm')}"></td>
+            <td th:text="${notice.noticeWriter}"></td>
+            <td th:text="${notice.noticeCnt}"></td>
+        </tr>
+    </table>
+    <!-- 공지사항 페이징 처리 -->
+			<div class="section">
+				<table class="noticeListPaging">
+					<tr th:if="${notice.totalElements > 0}">
+						<td colspan="7" class="pagination" align="center">
+							<span class="pagination-previous" th:if="${notice.number > 0}">
+								<a th:href="@{/notice/list(page=${notice.number - 1})}"> Previous </a>
+							</span>
+							<span th:each="i : ${#numbers.sequence(0, notice.totalPages - 1)}"
+								th:class="${notice.number == i} ? 'active'">
+								<a th:href="@{/notice/list(page=${i})}" th:text="${i + 1}"></a>
+							</span>
+							<span class="pagination-next" th:if="${notice.number < notice.totalPages - 1}">
+								<a th:href="@{/notice/list(page=${notice.number + 1})}"> Next </a>
+							</span>
+						</td>
+					</tr>
+				</table>
+			</div>
+</body>
+</html>
