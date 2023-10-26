@@ -5,8 +5,7 @@ spring :
   thymeleaf:
     prefix : views/
     suffix : .html
-    cache : false 
-  
+    cache : false
   datasource :
     driver-class-name : com.mysql.cj.jdbc.Driver
     url : jdbc:mysql://localhost:3306/linker
