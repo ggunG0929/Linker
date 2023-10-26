@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>회원가입</title>
+	<!-- ajax 사용을 위한 제이쿼리 -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- daum 우편번호 서비스 -->
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<style>
+		.accordion {
+			display: block;
+			margin-bottom: 10px;
+		}
+
+		.accordion-content {
+			display: none;
+			margin-top: 10px;
+		}
+
+		.accordion-label {
+			cursor: pointer;
+			display: inline-block;
+			/* 체크박스와 같은 줄에 표시 */
+		}
+
+		.arrow::after {
+			content: '\25BC';
+			/* 화살표 표시 (아래쪽 화살표) */
+			display: inline-block;
+			margin-left: 10px;
+		}
+
+		.opened .arrow::after {
+			content: '\25B2';
+			/* 열린 상태일 때 위쪽 화살표로 변경 - 안되니까 나중에 해보자 */
+		}
+	</style>
+</head>
+
+<body>
+	<h2>회원가입</h2>
+	<form method="post" th:object="${member}">
+		<table>
+			<tr>
+				<td>유형</td>
+				<td>
+					<label>
+						<input type="radio" name="memberType" value="1" required> 원장
+					</label>
+					<label>
+						<input type="radio" name="memberType" value="2" required> 강사, 수강생
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td>아이디</td>
+				<td>
+					<input type="text" id="memberId" name="memberId" th:field="*{memberId}" required
+						placeholder="영문자나 숫자로 4자 이상">
+					<input type="button" value="중복체크" onclick="idChk()">
+					<div id="idResult"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>비밀번호</td>
+				<td><input type="password" id="memberPw" name="memberPw" th:field="*{memberPw}" required
+						placeholder="(임시)4자 이상 - 테스트 중이니까~"></td>
+			</tr>
+			<tr>
+				<td>암호확인</td>
+				<td><input type="password" id="pw2" required placeholder="비밀번호를 다시 입력하세요" onblur="pwChk()">
+					<div id="pwResult"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>이름</td>
+				<td><input type="text" id="memberName" name="memberName" th:field="*{memberName}" required
+						placeholder="실명을 입력하세요(한글 2~19자)"></td>
+			</tr>
+			<tr>
+				<td>연락처</td>
+				<td>
+					<input type="tel" id="memberPhone" name="memberPhone" th:field="*{memberPhone}" required
+						oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="01012345678">
+				</td>
+			</tr>
+			<tr>
+				<td>이메일</td>
+				<td>
+					<input type="email" id="memberEmail" name="memberEmail" th:field="*{memberEmail}" required
+						placeholder="abc@test.com">
+					<input type="button" id="sendBtn" onclick="sendNumber()" value="인증번호발송">
+					<div id="mailResult"></div>
+					<div id="mail_number" style="display: none">
+						<input type="text" name="number" id="number" placeholder="메일에서 인증번호를 확인하고 입력해주세요">
+						<input type="button" id="confirmBtn" onclick="confirmNumber()" value="메일인증">
+						<input type="hidden" id="confirm" name="confirm">
+					</div>
+				</td>
+			</tr>
+			<tr id="addressShort">
+				<td>우편번호</td>
+				<td><input type="button" onclick="daumPostCode()" value="검색"></td>
+			</tr>
+			<tr id="addressLong" style="display:none">
+				<td>우편번호</td>
+				<td>
+					<input type="text" id="memberZipcode" name="memberZipcode" th:field="*{memberZipcode}" required>
+				</td>
+			</tr>
+			<tr id="addressLong2" style="display:none">
+				<td>주소</td>
+				<td>
+					<input type="text" id="memberAddress" name="memberAddress" th:field="*{memberAddress}" required
+						onclick="daumPostcode()">
+					<span id="guide" style="color:#999;display:none"></span>
+				</td>
+			</tr>
+			<tr id="addressLong3" style="display:none">
+				<td>상세주소</td>
+				<td>
+					<input type="text" id="memberAddressDetail" name="memberAddressDetail"
+						th:field="*{memberAddressDetail}" required placeholder="상세주소를 입력하세요">
+					<span id="extraAddress" style="font-size:x-small;"></span>
+				</td>
+			</tr>
+			<tr>
+				<td>자기소개</td>
+				<td><input type="text" id="memberProfile" name="memberProfile" th:field="*{memberProfile}"
+						placeholder="선택사항"></td>
+			</tr>
+		</table>
+		<!-- 이용약관 아코디언 -->
+		<div class="accordion" id="termsAccordion">
+			<input type="checkbox" id="termsCheckbox" required>
+			<label for="termsCheckbox" class="accordion-label">
+				이용약관에 동의합니다.
+			</label><span class="arrow" onclick="toggleAccordion('termsContent')"></span>
+			<div class="accordion-content" id="termsContent">
+				<p>이용약관 내용을 여기에 작성합니다.</p>
+			</div>
+		</div>
+		<!-- 개인정보 처리방침 아코디언 -->
+		<div class="accordion" id="privacyAccordion">
+			<input type="checkbox" id="privacyCheckbox" required>
+			<label for="privacyCheckbox" class="accordion-label">
+				개인정보 처리방침에 동의합니다.
+			</label><span class="arrow" onclick="toggleAccordion('privacyContent')"></span>
+			<div class="accordion-content" id="privacyContent">
+				<p>개인정보 처리방침 내용을 여기에 작성합니다.</p>
+			</div>
+		</div>
+		<!-- 가입 버튼 -->
+		<div>
+			<input type="reset" value="취소">
+			<button type="submit" onclick="validForm()">가입</button>
+		</div>
+	</form>
+	<script>
+		// 제이쿼리 들어간 김에 제이쿼리 형태로 써봄
+		function idChk() {
+			var memberId = $("#memberId").val();
+			var isValid = /^[a-z0-9]{4,}$/.test(memberId); // 정규식을 이용한 유효성 검사 - 영어 소문자, 숫자로 4자 이상
+			if (!isValid) {
+				$("#idResult").html("<span style='color:red;'>올바르지 않은 아이디입니다.</span>");
+				$("#memberId").focus();
+				return; // 유효성 검사 실패 시 중복 검사를 진행하지 않음
+			}
+			// 아이디 중복검사
+			$.ajax({
+				type: "POST",
+				url: "/member/idchk",
+				data: "memberId=" + memberId,
+				error: function (error) {
+					$("#idResult").html("<span style='color:red;'>(" + error + ")다시 시도해주세요.</span>");
+				},
+				success: function (response) {
+					if (response == "존재") {
+						$("#idResult").html("<span style='color:red;'>이미 사용 중인 아이디입니다.</span>");
+						$("#memberId").focus();
+					} else {
+						$("#memberId").prop("readOnly", true);
+						$("#idResult").html("<span style='color:green;'>사용 가능한 아이디입니다.</span>");
+						$("#memberPw").focus();
+					}
+				}
+			});
+		}
+
+		function pwChk() {
+			var pw = document.getElementById("memberPw").value;
+			var pw2 = document.getElementById("pw2").value;
+			var isValid = /^[^\s]{4,}$/.test(pw);	// 정규식을 이용한 유효성 검사 - 공백없이 4자 이상
+			var resultElement = document.getElementById("pwResult");
+			if (!isValid) {
+				resultElement.innerHTML = "<span style='color:red;'>비밀번호가 올바르지 않습니다.</span>";
+				document.getElementById("memberPw").focus();
+				return; // 유효성 검사 실패 시 일치 검사를 진행하지 않음
+			}
+			if (pw !== pw2) {
+				resultElement.innerHTML = "<span style='color:red;'>비밀번호가 일치하지 않습니다.</span>";
+			} else {
+				document.getElementById("memberPw").readOnly = true;
+				resultElement.innerHTML = "<span style='color:green;'>비밀번호가 일치합니다.</span>";
+				document.getElementById("memberName").focus();
+			}
+		}
+
+		// 메일인증
+		function sendNumber() {
+			// 유효성검사
+			var memberEmail = $("#memberEmail").val();
+			var isValid = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(memberEmail);
+			if (!isValid) {
+				$("#mailResult").html("<span style='color:red;'>올바르지 않은 메일형식입니다.</span>");
+				$("#memberEmail").focus();
+				return; // 유효성 검사 실패 시 인증번호를 발송하지 않음
+			}
+			// 인증번호 발송
+			$("#mailResult").text("인증번호가 포함된 메일을 발송하고 있습니다.");
+			$.ajax({
+				url: "/member/mail",
+				type: "post",
+				dataType: "json",
+				data: {"memberEmail": $("#memberEmail").val()},
+				error: function (error) {
+					$("#mailResult").html("<span style='color:red;'>(" + error + ")다시 시도해주세요.</span>");
+				},
+				success: function (response) {
+					$("#sendBtn").css("display", "none");	// 버튼 비활성화
+					$("#mail_number").css("display", "block");	// 번호입력영역 활성화
+					$("#mailResult").text("발송완료");
+					$("#confirm").val(response); // 인증번호 임시저장
+					setTimeout(function () {
+						$("#confirm").val('');
+					}, 5 * 60 * 1000);	// 5분 후 인증번호 삭제
+					startCountdown();	// 카운트다운 시작
+				}
+			});
+		}
+		// 카운트다운
+		var countdown;	// 타이머 변수, 시작과 종료를 위해 전역에 있어야 함
+		function startCountdown() {
+			var time = 60;	// 시간제한 60초
+			// 시작
+			countdown = setInterval(function () {
+				$("#mailResult").text("5분 내에 인증해주세요. 인증번호 재발급은 " + time + "초 후에 가능합니다.");
+				time--;
+				// 시간이 0이 되면 타이머 종료, 버튼 활성화
+				if (time < 0) {
+					clearInterval(countdown);
+					$("#sendBtn").css("display", "inline-block");
+					$("#mailResult").text("5분 내에 인증해주세요.");
+				}
+			}, 1000);
+		}
+		// 인증번호 확인
+		function confirmNumber() {
+			var number1 = $("#number").val().trim(); // 입력 값에서 공백 제거
+			var number2 = $("#confirm").val();
+			if (!number2) {
+				$("#mailResult").html("<span style='color:red;'>인증번호를 재발급 받아야 합니다.</span>");
+			} else if (number1 == number2) {
+				clearInterval(countdown); // 카운터를 멈춤
+				$("#sendBtn").css("display", "none");
+				$("#mail_number").css("display", "none");
+				$("#memberEmail").prop("readonly", true);
+				$("#mailResult").html("<span style='color:green;'>인증이 완료되었습니다.</span>");
+			} else {
+				$("#mailResult").html("<span style='color:red;'>인증번호가 올바르지 않습니다.</span>");
+			}
+		}
+
+		function daumPostCode() {
+			new daum.Postcode({
+				oncomplete: function (data) {
+					// 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
+					// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+					var roadAddr = data.roadAddress; // 도로명 주소 변수
+					var extraRoadAddr = ''; // 참고 항목 변수
+
+					// 법정동명이 있을 경우 추가한다. (법정리는 제외)
+					// 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+					if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+						extraRoadAddr += data.bname;
+					}
+					// 건물명이 있고, 공동주택일 경우 추가한다.
+					if (data.buildingName !== '' && data.apartment === 'Y') {
+						extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+					}
+					// 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+					if (extraRoadAddr !== '') {
+						extraRoadAddr = ' (' + extraRoadAddr + ')';
+					}
+
+					// 우편번호와 주소 정보를 해당 필드에 넣는다.
+					document.getElementById('memberZipcode').value = data.zonecode;
+					document.getElementById("memberAddress").value = roadAddr;
+
+					// 참고항목 문자열이 있을 경우 해당 필드에 넣는다.
+					if (roadAddr !== '') {
+						document.getElementById("extraAddress").innerHTML = extraRoadAddr;
+					} else {
+						document.getElementById("extraAddress").innerHTML = '';
+					}
+
+					var guideTextBox = document.getElementById("guide");
+					// 사용자가 '선택 안함'을 클릭한 경우, 예상 주소라는 표시를 해준다.
+					if (data.autoRoadAddress) {
+						var expRoadAddr = data.autoRoadAddress + extraRoadAddr;
+						guideTextBox.innerHTML = '(예상 도로명 주소 : ' + expRoadAddr + ')';
+						guideTextBox.style.display = 'block';
+					} else {
+						guideTextBox.innerHTML = '';
+						guideTextBox.style.display = 'none';
+					}
+					document.getElementById("addressShort").style.display = 'none';
+					document.getElementById("addressLong").style.display = 'table-row';
+					document.getElementById("addressLong2").style.display = 'table-row';
+					document.getElementById("addressLong3").style.display = 'table-row';
+					// 팝업이 닫힌 후 상세주소입력란으로 포커스 이동
+					document.getElementById("memberAddressDetail").focus();
+				}
+			}).open();
+		}
+
+		function toggleAccordion(elementId) {
+			var content = document.getElementById(elementId);
+			content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+			// 안되는 중 arrow 위치를 잡아줘야 하고 opened가 추가되어도 화살표 모양이 안바뀜 나중에~
+			var arrow = document.querySelector('.arrow');
+			if (arrow) {
+				arrow.classList.toggle('opened');
+			}
+		}
+
+		function validForm() {
+			var memberType = document.querySelector('input[name="memberType"]:checked');
+			var idResult = document.getElementById("idResult").textContent;
+			var pwResult = document.getElementById("pwResult").textContent;
+			var memberName = document.getElementById("memberName").value;
+			var namePattern = /^[가-힣]{2,19}$/;	// 한글 2~19자
+			var memberPhone = document.getElementById("memberPhone").value;
+			var phonePattern = /^\d{10,11}$/;	// 숫자 10~11자
+			var memberAddressDetail = document.getElementById("memberAddressDetail").value;
+			var detailPattern = /^.{1,}$/;	// 1자 이상
+			var mailResult = document.getElementById("mailResult").textContent;
+			var termsCheckbox = document.getElementById("termsCheckbox");
+			var privacyCheckbox = document.getElementById("privacyCheckbox");
+
+			if (!memberType) {
+				alert("회원 유형을 선택해야 합니다.");
+				return false;
+			}
+			if (!idResult.includes("가능한")) {
+				alert("아이디가 올바르지 않습니다. ID중복체크를 통과해야 합니다.");
+				document.getElementById("memberId").focus();
+				return false;
+			}
+			if (!pwResult.includes("일치합니다")) {
+				alert("비밀번호가 올바르지 않습니다. 비밀번호가 일치해야 합니다.");
+				document.getElementById("pw2").focus();
+				return false;
+			}
+			if (!namePattern.test(memberName)) {
+				alert("이름은 2자 이상, 19자 이하의 한글이어야 합니다.");
+				document.getElementById("memberName").focus();
+				return false;
+			}
+			if (!phonePattern.test(memberPhone)) {
+				alert("전화번호 형식이 올바르지 않습니다.");
+				document.getElementById("memberPhone").focus();
+				return false;
+			}
+			if (!mailResult.includes("완료")) {
+				alert("메일인증이 완료되지 않았습니다.");
+				document.getElementById("memberEmail").focus();
+				return false;
+			}
+			if (!detailPattern.test(memberAddressDetail)) {
+				alert("주소가 입력되지 않았습니다.");
+				document.getElementById("memberAddressDetail").focus();
+				return false;
+			}
+			if (!termsCheckbox.checked) {
+				alert("이용약관에 동의해야 합니다.");
+				return false;
+			}
+			if (!privacyCheckbox.checked) {
+				alert("개인정보 처리방침에 동의해야 합니다.");
+				return false;
+			}
+			alert("링커에 가입해주셔서 감사합니다.\n로그인 후 서비스를 이용해주세요.");
+			return true;
+		}
+	</script>
+</body>
+
+</html>
