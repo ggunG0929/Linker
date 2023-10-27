@@ -34,7 +34,7 @@ public class MemberController {
 
 	@Autowired
 	private LabMemberRepository labMemberRepository;
-	
+
 	@Autowired
 	private LabRepository labRepository;
 
@@ -83,12 +83,15 @@ public class MemberController {
 
 	@GetMapping("/login")
 	public String loginMemberForm(HttpSession session, Model model) {
-//		String sessionId = (String) session.getAttribute("sessionId");		
-//		Member sessionMember = memberRepository.findById(sessionId).get();
-		Member sessionMember = (Member) session.getAttribute("sessionMember");
-		if (sessionMember != null) {
-			// 세션존재시 memberName띄우려고
-			model.addAttribute("member", sessionMember);
+		String sessionId = (String) session.getAttribute("sessionId");
+		if (sessionId != null) {
+			Member sessionMember = memberRepository.findById(sessionId).get();
+//		Member sessionMember = (Member) session.getAttribute("sessionMember");
+			if (sessionMember != null) {
+				// 세션존재시 memberName띄우려고
+				model.addAttribute("member", sessionMember);
+				System.out.println(sessionMember);
+			}
 		}
 		return "member/login";
 	}
@@ -97,11 +100,12 @@ public class MemberController {
 	@PostMapping("/login")
 	public String loginMemberReg(@RequestParam("memberId") String memberId, @RequestParam("memberPw") String memberPw,
 			HttpSession session, Model model) {
-	    Member member = memberRepository.findById(memberId).get();
+		Member member = memberRepository.findById(memberId).get();
 		String msg = "로그인에 실패했습니다.\n아이디와 비밀번호를 확인하세요.";
 		String goUrl = "/member/login";
 		if (member != null && member.getMemberPw().equals(memberPw)) {
 			// 둘 중 하나만 쓸까? 둘 다 쓸까?
+			// 왜 세션 멤버는 죽었는데 아이디는 남아있을까?
 			session.setAttribute("sessionId", memberId);
 			session.setAttribute("sessionMember", member);
 //			System.out.println(member);
@@ -146,37 +150,40 @@ public class MemberController {
 		int memberType = memberRepository.getById(sessionId).getMemberType();
 //		int memberType = sessionMember.getMemberType();
 //		String sessionId = sessionMember.getMemberId();
-        // memberId로 labMember에서 검색
-        List<LabMember> labMembers = labMemberRepository.findByMemberId(sessionId);
-        // labId와 labMemberType를 리스트로 만들기
-        List<Integer> labMemberTypes = labMembers.stream().map(LabMember::getLabMemberType).collect(Collectors.toList());
-        // type을 한글로
-        List<String> labMemberRoles = new ArrayList<>();
-        for(Integer type : labMemberTypes) {
-            if(type == 1) {
-                labMemberRoles.add("원장님");
-            } else if(type == 2) {
-                labMemberRoles.add("강사님");
-            } else if(type == 3) {
-                labMemberRoles.add("수강생");
-            }
-        }
-        List<Integer> labIds = labMembers.stream().map(LabMember::getLabId).collect(Collectors.toList());
-        // labRepository를 사용하여 Lab 정보 가져오기
-        List<Lab> labs = labRepository.findByLabIdIn(labIds);
-        // 회원에게 연결된 학원이름과 그에 대한 자기역할 정보전달
-        model.addAttribute("memberType", memberType);
-        model.addAttribute("labMemberRoles", labMemberRoles);
-        model.addAttribute("labs", labs);
+		// memberId로 labMember에서 검색
+		List<LabMember> labMembers = labMemberRepository.findAllByMemberId(sessionId);
+		// labId와 labMemberType를 리스트로 만들기
+		List<Integer> labMemberTypes = labMembers.stream().map(LabMember::getLabMemberType)
+				.collect(Collectors.toList());
+		// type을 한글로
+		List<String> labMemberRoles = new ArrayList<>();
+		for (Integer type : labMemberTypes) {
+			if (type == 0) {
+				labMemberRoles.add("대기중");
+			} else if (type == 1) {
+				labMemberRoles.add("원장님");
+			} else if (type == 2) {
+				labMemberRoles.add("강사님");
+			} else if (type == 3) {
+				labMemberRoles.add("수강생");
+			}
+		}
+		List<Integer> labIds = labMembers.stream().map(LabMember::getLabId).collect(Collectors.toList());
+		// labRepository를 사용하여 Lab 정보 가져오기
+		List<Lab> labs = labRepository.findByLabIdIn(labIds);
+		// 회원에게 연결된 학원이름과 그에 대한 자기역할 정보전달
+		model.addAttribute("memberType", memberType);
+		model.addAttribute("labMemberRoles", labMemberRoles);
+		model.addAttribute("labs", labs);
 		return "member/mylab";
 	}
 
 	// 내정보 수정
 	@RequestMapping("/edit")
 	public String myinfoForm(HttpSession session, Model model) {
-		Member sessionMember = (Member) session.getAttribute("sessionMember");
-//		String sessionId = (String) session.getAttribute("sessionId");
-//		Member sessionMember = memberRepository.findById(sessionId).get();
+//		Member sessionMember = (Member) session.getAttribute("sessionMember");
+		String sessionId = (String) session.getAttribute("sessionId");
+		Member sessionMember = memberRepository.findById(sessionId).get();
 		// 세션만료
 		if (sessionMember == null) {
 			String msg = "로그인 세션이 만료되었습니다.";

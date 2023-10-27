@@ -1,6 +1,10 @@
 package Linker.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +58,7 @@ public class LabController {
 		labRepository.save(lab);
 		labMember.setLabId(lab.getLabId());
 		labMemberRepository.save(labMember);
-		String msg = "링커에 학원이 개설되었습니다.";
+		String msg = "링커에 학원페이지가 개설되었습니다.";
 		String goUrl = "/member/mylab";
 		model.addAttribute("msg", msg);
 		model.addAttribute("goUrl", goUrl);
@@ -64,9 +68,9 @@ public class LabController {
 	// 각 학원들 페이지
 	@RequestMapping("/{labId}")
 	String labMain(@PathVariable("labId") int labId, Model model, HttpSession session) {
-		Member sessionMember = (Member) session.getAttribute("sessionMember");
-//		String sessionId = (String) session.getAttribute("sessionId");
-//		Member sessionMember = memberRepository.findById(sessionId).get();
+//		Member sessionMember = (Member) session.getAttribute("sessionMember");
+		String sessionId = (String) session.getAttribute("sessionId");
+		Member sessionMember = memberRepository.findById(sessionId).get();
 		if(sessionMember != null) {
 			model.addAttribute("sessionMember", sessionMember);
 			LabMember sessionLabMember = labMemberRepository.findByMemberIdAndLabId(sessionMember.getMemberId(), labId);
@@ -78,5 +82,58 @@ public class LabController {
 		model.addAttribute("lab", lab);
 		return "lab/main";
 	}
+	
+	@RequestMapping("/{labId}/join")
+	String labJoin(@PathVariable("labId") int labId, Model model, HttpSession session) {
+		String sessionId = (String) session.getAttribute("sessionId");
+		String msg = "로그인이 필요합니다.";
+		String goUrl = "/member/login";
+		if(sessionId == null) {
+			model.addAttribute("msg", msg);
+			model.addAttribute("goUrl", goUrl);
+			return "member/alert";
+		}
+		goUrl = "/lab/" + labId;
+		LabMember labMember = labMemberRepository.findByMemberIdAndLabId(sessionId, labId);
+		if(labMember != null) {
+			msg = "이미 등록신청을 하셨습니다.";
+			model.addAttribute("msg", msg);
+			model.addAttribute("goUrl", goUrl);
+			return "member/alert";
+		}
+		LabMember newLabMember = new LabMember();
+		newLabMember.setLabId(labId);
+		newLabMember.setLabMemberType(0);
+		newLabMember.setMemberId(sessionId);
+		labMemberRepository.save(newLabMember);
+		String labName = labRepository.findById(labId).get().getLabName();
+		msg = labName + "에 등록신청이 완료되었습니다.";
+		model.addAttribute("msg", msg);
+		model.addAttribute("goUrl", goUrl);
+		return "member/alert";
+	}
 
+	// memberName 추가, type별로 정렬, 엑셀로 저장 기능, 친구 초대기능 추가해야 함
+	@GetMapping("/{labId}/member")
+	String LabMemberList(@PathVariable("labId") int labId, HttpSession session, Model model) {
+        List<LabMember> labMembers = labMemberRepository.findAllByLabId(labId);
+        model.addAttribute("labMembers", labMembers);
+		return "lab/member";
+    }
+	
+    @RequestMapping("/{labId}/member/{memberId}/confirm")
+    public String joinLabConfirm(@PathVariable("labId") int labId, @PathVariable("memberId") String memberId, Model model) {
+        Member member = memberRepository.getById(memberId);
+        String msg = "회원이 존재하지 않습니다.";
+        String goUrl = "/lab/"+labId+"/member";
+        if (member != null) {
+            LabMember labMember = labMemberRepository.findByMemberIdAndLabId(memberId, labId);
+            labMember.setLabMemberType(member.getMemberType());
+            labMemberRepository.save(labMember);
+            msg = "등록을 수락했습니다.";
+        }
+		model.addAttribute("msg", msg);
+		model.addAttribute("goUrl", goUrl);
+		return "member/alert";
+    }
 }

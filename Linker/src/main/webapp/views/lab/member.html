@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>학원 회원</title>
+</head>
+
+<body>
+	<h2>회원목록</h2>
+	<table>
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>유형</th>
+				<th>확인</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="labMember : ${labMembers}">
+				<td th:text="${labMember.memberId}"></td>
+				<td th:text="${labMember.labMemberType}"></td>
+				<td th:if="${labMember.labMemberType == 0}">
+					<button type="button" th:attr="memberid=${labMember.memberId}"
+						onclick="confirm(this)">등록수락</button>
+				</td>
+				<td th:unless="${labMember.labMemberType == 0}"></td>
+			</tr>
+		</tbody>
+	</table>
+	<script th:inline="javascript">
+		function confirm(button) {
+			var memberId = button.getAttribute("memberid");
+			// 붙이면 뒷부분이 안나옴
+			var lab = '/lab/' + /*[[${labId}]]*/'';
+			var member = '/member/' + memberId + '/confirm';
+			window.location.href = lab + member;
+		}
+	</script>
+</body>
+
+</html>

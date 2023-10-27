@@ -9,7 +9,6 @@ public class Lab {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int labId;
-    private int labMemberId;	// ?
     private String labName;
     private int labPhone;
     private String labAddress;

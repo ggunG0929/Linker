@@ -18,13 +18,13 @@
 			<!-- 회원유형이 원장일 경우 -->
 			<th:block th:if="${memberType == 1}">
 				<tr>
-					<td colspan="2"><button type="button" onclick="window.location.href='/lab/add'">학원등록하기</button></td>
+					<td colspan="2"><button type="button" onclick="window.location.href='/lab/add'">학원페이지개설하기</button></td>
 				</tr>
 			</th:block>
 			<!-- 회원유형이 원장이 아닐 경우 -->
 			<th:block th:unless="${memberType == 1}">
 				<tr>
-					<td colspan="2">강의/수강 중인 학원이 없습니다.</td>
+					<td colspan="2">강의/수강 중인 학원페이지가 없습니다.</td>
 				</tr>
 			</th:block>
 		</th:block>

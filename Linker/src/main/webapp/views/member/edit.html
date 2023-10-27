@@ -20,8 +20,11 @@
 					<th:block th:if="${member.memberType==1}">
 						원장님
 					</th:block>
-					<th:block th:unless="${member.memberType==1}">
-						강사님, 수강생
+					<th:block th:unless="${member.memberType==2}">
+						강사님
+					</th:block>
+					<th:block th:unless="${member.memberType==3}">
+						수강생
 					</th:block>
 				</td>
 			</tr>
