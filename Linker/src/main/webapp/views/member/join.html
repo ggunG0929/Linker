@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 
 <head>
 	<meta charset="UTF-8">
@@ -47,10 +47,10 @@
 				<td>유형</td>
 				<td>
 					<label>
-						<input type="radio" name="memberType" value="1" required> 원장
+						<input type="radio" name="memberType" value="1" required> 원장님
 					</label>
 					<label>
-						<input type="radio" name="memberType" value="2" required> 강사, 수강생
+						<input type="radio" name="memberType" value="2" required> 강사님, 수강생
 					</label>
 				</td>
 			</tr>
@@ -69,7 +69,7 @@
 						placeholder="(임시)4자 이상 - 테스트 중이니까~"></td>
 			</tr>
 			<tr>
-				<td>암호확인</td>
+				<td>비밀번호 확인</td>
 				<td><input type="password" id="pw2" required placeholder="비밀번호를 다시 입력하세요" onblur="pwChk()">
 					<div id="pwResult"></div>
 				</td>
@@ -128,8 +128,10 @@
 			</tr>
 			<tr>
 				<td>자기소개</td>
-				<td><input type="text" id="memberProfile" name="memberProfile" th:field="*{memberProfile}"
-						placeholder="선택사항"></td>
+				<td>
+					<textarea id="memberProfile" name="memberProfile" th:field="*{memberProfile}" rows="4" cols="50"
+						placeholder="(선택사항)자유롭게 자기소개를 작성해주세요"></textarea>
+				</td>
 			</tr>
 		</table>
 		<!-- 이용약관 아코디언 -->
@@ -154,7 +156,7 @@
 		</div>
 		<!-- 가입 버튼 -->
 		<div>
-			<input type="reset" value="취소">
+			<button type="button" onclick="window.location.href='/member/login'">취소</button>
 			<button type="submit" onclick="validForm()">가입</button>
 		</div>
 	</form>
@@ -344,6 +346,8 @@
 			var namePattern = /^[가-힣]{2,19}$/;	// 한글 2~19자
 			var memberPhone = document.getElementById("memberPhone").value;
 			var phonePattern = /^\d{10,11}$/;	// 숫자 10~11자
+			var memberZipcode = document.getElementById("memberZipcode").value;
+			var zipcodePattern = /^\d{5}$/;	// 숫자 5자
 			var memberAddressDetail = document.getElementById("memberAddressDetail").value;
 			var detailPattern = /^.{1,}$/;	// 1자 이상
 			var mailResult = document.getElementById("mailResult").textContent;
@@ -374,6 +378,11 @@
 				document.getElementById("memberPhone").focus();
 				return false;
 			}
+			if (!zipcodePattern.test(memberZipcode)) {
+				alert("우편번호가 올바르지 않습니다.");
+				onclick="daumPostCode()"
+				return false;
+			}
 			if (!mailResult.includes("완료")) {
 				alert("메일인증이 완료되지 않았습니다.");
 				document.getElementById("memberEmail").focus();
@@ -392,7 +401,6 @@
 				alert("개인정보 처리방침에 동의해야 합니다.");
 				return false;
 			}
-			alert("링커에 가입해주셔서 감사합니다.\n로그인 후 서비스를 이용해주세요.");
 			return true;
 		}
 	</script>
