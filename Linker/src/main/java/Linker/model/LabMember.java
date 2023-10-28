@@ -15,4 +15,5 @@ public class LabMember {
 	private String memberId;
 	
 	private int labMemberType;
+	private int labMemberStatus;
 }
