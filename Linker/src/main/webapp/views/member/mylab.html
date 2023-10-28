@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>내강의실</title>
+</head>
+
+<body>
+	<h2>내강의실</h2>
+	<table>
+		<tr>
+			<td>학원이름</td>
+			<td>상태</td>
+		</tr>
+		<!-- 학원정보가 없을 때 -->
+		<th:block th:if="${labs == null or #lists.isEmpty(labs)}">
+			<!-- 회원유형이 원장일 경우 -->
+			<th:block th:if="${memberType == 1}">
+				<tr>
+					<td colspan="2"><button type="button" onclick="window.location.href='/lab/add'">학원페이지개설하기</button></td>
+				</tr>
+			</th:block>
+			<!-- 회원유형이 원장이 아닐 경우 -->
+			<th:block th:unless="${memberType == 1}">
+				<tr>
+					<td colspan="2">가입된 학원페이지가 없습니다.</td>
+				</tr>
+			</th:block>
+		</th:block>
+		<!-- 학원정보가 있을 때 -->
+		<!-- index가 원하는대로 출력되지 않아서 loopstatus 사용 -->
+		<th:block th:unless="${labs == null or #lists.isEmpty(labs)}" th:each="lab, loopStatus : ${labs}">
+			<tr>
+				<td><a th:href="|/lab/${lab.labId}|">[[${lab.labName}]]</a></td>
+				<td th:text="${labMemberRoles[loopStatus.index]}"></td>
+			</tr>
+		</th:block>
+	</table>
+</body>
+
+</html>
