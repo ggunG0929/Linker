@@ -9,7 +9,10 @@ public class LabMember {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int labMemberId;
+	
 	private int labId;
+	
 	private String memberId;
+	
 	private int labMemberType;
 }
