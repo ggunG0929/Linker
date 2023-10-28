@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<script src="https://code.jquery.com/jquery-3.7.1.js" 
+ integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" 
+ crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/teacher.js"></script>
+</head>
+<body>
+	<table>
+		<tr>
+			<td colspan="4">
+				<h2>강사 관리</h2>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4">
+				<input type="text" placeholder="강사명 혹은 아이디를 입력해주세요." id="searchValue" />
+				<input type="button" value="검색" onclick="search()" />
+			</td>
+		</tr>
+		<!-- 강사 없을 시 -->
+		<th:block th:if="${#arrays.isEmpty(labTeachersInfo)}">
+		<tr>
+			<td>강사를 등록해주세요</td>
+		</tr>
+		</th:block>
+		<!-- 강사 있을 시 -->
+		<th:block th:unless="${#arrays.isEmpty(labTeachersInfo)}">
+		<tr>
+			<td>프로필</td>
+			<td>강사명</td>
+			<td>아이디</td>
+			<td>이메일</td>
+			<td>등록일</td>
+		</tr>
+		<tr th:each="member:${labTeachersInfo}" th:id="|detail${member.memberId}|">
+			<td>
+				<img th:src="|/upload_file/${member.memberProfile}|" alt="프로필" />
+			</td>
+			<td th:text="${member.memberName}"></td>
+			<td th:text="${member.memberId}"></td>
+			<td th:text="${member.memberEmail}"></td>
+			<td th:text="${member.memberRegDate}"></td>
+			<td>
+				<input type="hidden" th:value="${labId}" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<th:block th:if="${labTeachers.number gt 0}">
+					<a th:href="|/lab/${labId}/teacher?page=0|"><<</a>
+					<a th:href="|/lab/${labId}/teacher?page=${labTeachers.number - 1}|"><</a>	
+				</th:block>
+				<a th:href="|/lab/${labId}/teacher?page=${labTeachers.number + 1}|">></a>
+				<a th:href="|/lab/${labId}/teacher?page=${labTeachers.totalPages - 1}|">>></a>
+			</td>
+		</tr>
+		</th:block>
+	</table>
+</body>
+</html>
