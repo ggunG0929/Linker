@@ -67,8 +67,8 @@ public class NoticeController {
 	}
 	
 	@PostMapping("write")
-	public String noticeWriteReg(Notice notice	) {
-	 	
+	public String noticeWriteReg(Notice notice,String ir1) {
+	 	notice.setNoticeContent(ir1);
 		noticeRepository.save(notice);
 		return "redirect:/notice/list";
 	}
