@@ -71,7 +71,6 @@
 		</div>
 	</form>
 	<script>
-
 		function daumPostCode() {
 			new daum.Postcode({
 				oncomplete: function (data) {
@@ -115,6 +114,7 @@
 						guideTextBox.innerHTML = '';
 						guideTextBox.style.display = 'none';
 					}
+					// 주소줄 열고 닫기
 					document.getElementById("addressShort").style.display = 'none';
 					document.getElementById("addressLong").style.display = 'table-row';
 					document.getElementById("addressLong2").style.display = 'table-row';
@@ -124,7 +124,6 @@
 				}
 			}).open();
 		}
-
 	</script>
 </body>
 

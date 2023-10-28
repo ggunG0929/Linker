@@ -45,6 +45,7 @@ public class MemberController {
 	@PostMapping("/idchk")
 	@ResponseBody
 	public String idchk(@RequestParam("memberId") String memberId) {
+		// Optional = isPresent를 쓸 수 있고 get으로 받을 수 있음 null이 없음
 		Optional<Member> idchk = memberRepository.findById(memberId);
 		return idchk.isPresent() ? "존재" : "없음";
 	}
@@ -72,6 +73,7 @@ public class MemberController {
 
 	@PostMapping("/join")
 	public String addMemberReg(@ModelAttribute Member member, Model model) {
+		// 등록일 설정 후 저장
 		member.setMemberRegDate(new Timestamp(System.currentTimeMillis()));
 		memberRepository.save(member);
 		String msg = "링커에 가입해주셔서 감사합니다.\n로그인 후 서비스를 이용해주세요.";
@@ -90,7 +92,7 @@ public class MemberController {
 			if (sessionMember != null) {
 				// 세션존재시 memberName띄우려고
 				model.addAttribute("member", sessionMember);
-				System.out.println(sessionMember);
+				System.out.println("세션존재 :" + sessionMember);
 			}
 		}
 		return "member/login";
@@ -105,10 +107,10 @@ public class MemberController {
 		String goUrl = "/member/login";
 		if (member != null && member.getMemberPw().equals(memberPw)) {
 			// 둘 중 하나만 쓸까? 둘 다 쓸까?
-			// 왜 세션 멤버는 죽었는데 아이디는 남아있을까?
+			// 왜 세션 멤버는 죽었는데 아이디는 남아있을까? - 세션id를 갖고와야 안전해서 id를 쓰는 게 나음
 			session.setAttribute("sessionId", memberId);
 			session.setAttribute("sessionMember", member);
-//			System.out.println(member);
+//			System.out.println("로그인성공 :" + member);
 			msg = "로그인에 성공했습니다.";
 			goUrl = "/member/login";
 		}
@@ -140,7 +142,7 @@ public class MemberController {
 		// 세션만료
 		if (sessionId == null) {
 //		if (sessionMember == null) {
-			String msg = "로그인 세션이 만료되었습니다.";
+			String msg = "로그인이 필요합니다.";
 			String goUrl = "/member/login";
 			model.addAttribute("msg", msg);
 			model.addAttribute("goUrl", goUrl);
@@ -150,9 +152,10 @@ public class MemberController {
 		int memberType = memberRepository.getById(sessionId).getMemberType();
 //		int memberType = sessionMember.getMemberType();
 //		String sessionId = sessionMember.getMemberId();
+		// fk를 이용하면 간단해질 듯?
 		// memberId로 labMember에서 검색
 		List<LabMember> labMembers = labMemberRepository.findAllByMemberId(sessionId);
-		// labId와 labMemberType를 리스트로 만들기
+		// labMemberType를 리스트로 만들기
 		List<Integer> labMemberTypes = labMembers.stream().map(LabMember::getLabMemberType)
 				.collect(Collectors.toList());
 		// type을 한글로
@@ -168,6 +171,7 @@ public class MemberController {
 				labMemberRoles.add("수강생");
 			}
 		}
+		// labId를 리스트로 만들기 
 		List<Integer> labIds = labMembers.stream().map(LabMember::getLabId).collect(Collectors.toList());
 		// labRepository를 사용하여 Lab 정보 가져오기
 		List<Lab> labs = labRepository.findByLabIdIn(labIds);
@@ -199,11 +203,13 @@ public class MemberController {
 
 	@PostMapping("/edit")
 	public String myinfoReg(HttpSession session, @ModelAttribute Member updatedMember, Model model) {
+		// 수정폼 정보로 검색
 		String id = updatedMember.getMemberId();
 		Member member = memberRepository.findById(id).get();
-		String msg = "회원정보가 확인되지 않았습니다.\n다시 시도해주세요.";
+		String msg = "회원정보가 확인되지 않습니다.\n다시 시도해주세요.";
 		String goUrl = "/member/login";
 		if (member != null) {
+			// 그냥 save하면 됐던 것 같은데 확인해보기
 			member.setMemberPw(updatedMember.getMemberPw());
 			member.setMemberPhone(updatedMember.getMemberPhone());
 			member.setMemberZipcode(updatedMember.getMemberZipcode());

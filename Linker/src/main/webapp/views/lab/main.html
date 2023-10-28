@@ -32,7 +32,7 @@
 <!-- 학원 원장 회원 -->
 <th:block th:if="${sessionLabMember != null and sessionLabMember.labMemberType == 1}">
 	<p>강사를 고용하고 학생들을 유치하세요</p>
-	<button type="button" th:onclick="'window.location.href=\'/lab/' + ${lab.labId} + '/member\''">회원목록</button>
+	<button type="button" th:onclick="'window.location.href=\'/lab/' + ${lab.labId} + '/member\''">수강생관리</button>
 </th:block>
 </body>
 </html>

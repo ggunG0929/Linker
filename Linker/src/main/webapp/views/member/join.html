@@ -50,7 +50,7 @@
 						<input type="radio" name="memberType" value="1" required> 원장님
 					</label>
 					<label>
-						<input type="radio" name="memberType" value="2" required> 수강생
+						<input type="radio" name="memberType" value="2" required> 강사님
 					</label>
 					<label>
 						<input type="radio" name="memberType" value="3" required> 수강생
@@ -69,7 +69,7 @@
 			<tr>
 				<td>비밀번호</td>
 				<td><input type="password" id="memberPw" name="memberPw" th:field="*{memberPw}" required
-						placeholder="(임시)4자 이상 - 테스트 중이니까~"></td>
+						placeholder="(임시)1종류 이상 4자 이상 - 테스트 중이니까~"></td>
 			</tr>
 			<tr>
 				<td>비밀번호 확인</td>
@@ -96,10 +96,11 @@
 						placeholder="abc@test.com">
 					<input type="button" id="sendBtn" onclick="sendNumber()" value="인증번호발송">
 					<div id="mailResult"></div>
+					<!-- 인증번호 입력 -->
 					<div id="mail_number" style="display: none">
+						<input type="hidden" id="confirm" name="confirm">
 						<input type="text" name="number" id="number" placeholder="메일에서 인증번호를 확인하고 입력해주세요">
 						<input type="button" id="confirmBtn" onclick="confirmNumber()" value="메일인증">
-						<input type="hidden" id="confirm" name="confirm">
 					</div>
 				</td>
 			</tr>

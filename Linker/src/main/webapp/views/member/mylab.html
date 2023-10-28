@@ -11,7 +11,7 @@
 	<table>
 		<tr>
 			<td>학원이름</td>
-			<td>내역할</td>
+			<td>상태</td>
 		</tr>
 		<!-- 학원정보가 없을 때 -->
 		<th:block th:if="${labs == null or #lists.isEmpty(labs)}">
@@ -24,7 +24,7 @@
 			<!-- 회원유형이 원장이 아닐 경우 -->
 			<th:block th:unless="${memberType == 1}">
 				<tr>
-					<td colspan="2">강의/수강 중인 학원페이지가 없습니다.</td>
+					<td colspan="2">가입된 학원페이지가 없습니다.</td>
 				</tr>
 			</th:block>
 		</th:block>
