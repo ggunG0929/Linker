@@ -16,5 +16,6 @@ public interface LabMemberRepository extends JpaRepository<LabMember, Integer> {
 	// memberId와 labId로 검색
 	LabMember findByMemberIdAndLabId(String memberId, int labId);
 	// labMemberType에서 강사만 리스트로 가져오기
-	Page<LabMember> findAllByLabMemberTypeAndLabId(int labMemberType, int labId, Pageable pageable);
+	Page<LabMember> findAllByLabMemberTypeAndLabIdAndLabMemberStatus
+	(int labMemberType, int labId, int labMemberStatus, Pageable pageable);
 }

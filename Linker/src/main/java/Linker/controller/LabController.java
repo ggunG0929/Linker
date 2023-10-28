@@ -159,24 +159,51 @@ public class LabController {
     		Pageable pageable,
     		@PathVariable int labId,
     		@RequestParam(name = "keyword", defaultValue = "") String keyword,
+    		@RequestParam(name = "state", defaultValue = "0") int state,
     		Model md) {
     	int labMemberType = 2;
     	
     	pageable = PageRequest.of(pageable.getPageNumber(), 5);
     	
-    	Page<LabMember> labTeachers = 
-    			labMemberRepository.findAllByLabMemberTypeAndLabId(labMemberType, labId, pageable);
-    	
-    	// 학원 소속 강사 회원정보를 개별적으로 담을 리스트
-    	List<Member> labTeachersInfo = new ArrayList<>();
-    	
-    	for(LabMember member : labTeachers) {
-    		labTeachersInfo.add(memberRepository.findByMemberId(member.getMemberId()));
+    	if(keyword.equals("")) {
+    		// 학원 소속 강사 회원정보를 개별적으로 담을 리스트
+    		List<Member> labTeachersInfo = new ArrayList<>();
+    		
+    		Page<LabMember> labTeachers = 
+    				labMemberRepository.findAllByLabMemberTypeAndLabIdAndLabMemberStatus
+    				(labMemberType, labId, state, pageable);
+    		
+        	for(LabMember member : labTeachers.getContent()) {
+        		labTeachersInfo.add(memberRepository.findByMemberId(member.getMemberId()));
+        	}
+    		
+        	md.addAttribute("pageData", 1);
+        	md.addAttribute("labTeachers", labTeachers);
+        	md.addAttribute("labTeachersInfo", labTeachersInfo);
+    	}else if(!keyword.equals("")){
+    		// 검색어 입력 시 회원 목록에서 이름으로 찾음
+    		List<Member> members = memberRepository.findByMemberNameLike("%"+keyword+"%");
+    		
+    		List<Member> labTeachersInfo = new ArrayList<>();
+    		List<LabMember> labTeachers = new ArrayList<>();
+    		
+    		// 검색된 회원 중 해당 학원에 재직 중인지 검증
+    		for(Member member : members) {
+    			LabMember labMem = labMemberRepository.findByMemberIdAndLabId(member.getMemberId(), labId);
+    			labTeachers.add(labMem);
+    			
+    			if(labMem != null) {
+    				labTeachersInfo.add(member);
+    			}
+    		}
+    		
+    		md.addAttribute("pageData", 0);
+    		md.addAttribute("labTeachers", labTeachers);
+    		md.addAttribute("labTeachersInfo", labTeachersInfo);
     	}
     	
+    	md.addAttribute("state", state);
     	md.addAttribute("labId", labId);
-    	md.addAttribute("labTeachers", labTeachers);
-    	md.addAttribute("labTeachersInfo", labTeachersInfo);
     	return "lab/teacher";
     }
     

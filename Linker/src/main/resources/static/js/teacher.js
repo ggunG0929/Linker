@@ -24,21 +24,55 @@ function memberALink(){
 		});
 		
 		tr.addEventListener('click', function(){
-			var idTd = tr.querySelector('td:nth-of-type(3)');
-			var id = idTd.textContent;
 			var input = tr.querySelector('td:last-child input');
-			var labId = input.value;
+			const id = input.value;
+			const labId = $('#labId').val();
 			
 			location.href='/lab/'+ labId +'/teacherDetail/' + id;
 		});
 	});
 }
 
-function search(){
-	let inputValue = $('#searchValue').val().toLowerCase();
-	console.log(inputValue);
+const param = window.location.search;
+const url = new URLSearchParams(param);
+const prValue = url.get('page');
+	
+function leftStop(){
+	if(prValue == 0 || prValue === null){
+		$('#left').click(function(e){
+			e.preventDefault();
+		});
+	}
+}
+
+function rightStop(){
+	const page = $('#totalPage').val();
+	
+	if(prValue == page){
+		$('#right').click(function(e){
+			e.preventDefault();
+		});
+	}
+}
+
+function statusChange(){
+	const state = $('#labMemberStatus').val();
+	const labId = $('#labId').val();
+	
+	location.href='/lab/'+ labId +'/teacher?page=0&state='+state;
+}
+
+function valid(){
+	const keyword = $('#search').val().trim();
+	
+	if(keyword.length === 0){
+		alert('검색어를 입력해주세요.');
+		return false;
+	}
 }
 
 window.onload = function(){
 	memberALink();
+	leftStop();
+	rightStop();
 };
