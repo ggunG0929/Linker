@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+	<meta charset="UTF-8">
+	<title>알림</title>
 </head>
+
 <body>
-<script th:inline="javascript">
-	    var msg = /*[[${msg}]]*/ '오류가 발생했습니다.';
-	    var goUrl = /*[[${goUrl}]]*/ '/member/login';
-    alert(msg);
-	location.href= goUrl;
-</script>
+	<script th:inline="javascript">
+		var msg = /*[[${msg}]]*/ '오류가 발생했습니다.';
+		var goUrl = /*[[${goUrl}]]*/ '/member/login';
+		alert(msg);
+		location.href = goUrl;
+	</script>
 </body>
+
 </html>

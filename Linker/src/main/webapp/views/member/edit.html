@@ -3,13 +3,13 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>정보수정</title>
+	<title>회원정보변경</title>
 	<!-- daum 우편번호 서비스 -->
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 
 <body>
-	<h2>정보수정</h2>
+	<h2>회원정보변경</h2>
 	<!-- 가입시에는 버튼에 온클릭이었지만, 수정시에는 바로 제출되어서 방식을 바꿈 -->
 	<!-- 가입에서 방식을 바꿨더니 required검사 후 유효성검사가 진행되어서 방식을 다르게 둠 -->
 	<form method="post" th:object="${member}" onsubmit="return validForm2();">
@@ -113,6 +113,7 @@
 		</div>
 	</form>
 	<script th:inline="javascript">
+		// 비밀번호를 수정할시 현재 비밀번호를 확인
 		function pwChk2() {
 			var sessionPw = /*[[${member.memberPw}]]*/ "";
 			var inputPw = document.getElementById("pw1").value;
@@ -127,6 +128,8 @@
 				document.getElementById("pw1").focus();
 			}
 		}
+		
+		// 새로운 비밀번호 유효성 검사
 		function pwChk() {
 			var pw = document.getElementById("memberPw").value;
 			var pw2 = document.getElementById("pw2").value;
@@ -189,6 +192,7 @@
 						guideTextBox.innerHTML = '';
 						guideTextBox.style.display = 'none';
 					}
+					// 팝업이 닫힌 후 상세주소입력란으로 포커스 이동
 					document.getElementById("memberAddressDetail").focus();
 				}
 			}).open();

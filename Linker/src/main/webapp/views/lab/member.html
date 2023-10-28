@@ -3,35 +3,40 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>학원 회원</title>
+	<title>수강생관리</title>
 </head>
 
 <body>
-	<h2>회원목록</h2>
+	<h2>수강생관리</h2>
+	<h3>회원목록</h3>
 	<table>
 		<thead>
 			<tr>
 				<th>ID</th>
 				<th>유형</th>
-				<th>확인</th>
+				<th>가입승인/거절</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr th:each="labMember : ${labMembers}">
 				<td th:text="${labMember.memberId}"></td>
 				<td th:text="${labMember.labMemberType}"></td>
+				<!-- 가입대기신청 상태인 경우 -->
 				<td th:if="${labMember.labMemberType == 0}">
+					<!-- 버튼에 memberId정보 담기 -->
 					<button type="button" th:attr="memberid=${labMember.memberId}"
-						onclick="confirm(this)">등록수락</button>
+						onclick="confirm(this)">가입승인</button>
 				</td>
+				<!-- 가입대기신청 상태가 아닌 경우 -->
 				<td th:unless="${labMember.labMemberType == 0}"></td>
 			</tr>
 		</tbody>
 	</table>
+	
 	<script th:inline="javascript">
 		function confirm(button) {
 			var memberId = button.getAttribute("memberid");
-			// 붙이면 뒷부분이 안나옴
+			// 붙이면 뒷부분이 안나옴 아마도 타임리프때문에?
 			var lab = '/lab/' + /*[[${labId}]]*/'';
 			var member = '/member/' + memberId + '/confirm';
 			window.location.href = lab + member;
