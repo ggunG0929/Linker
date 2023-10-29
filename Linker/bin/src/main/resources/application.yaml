@@ -5,8 +5,7 @@ spring :
   thymeleaf:
     prefix : views/
     suffix : .html
-    cache : false 
-  
+    cache : false
   datasource :
     driver-class-name : com.mysql.cj.jdbc.Driver
     url : jdbc:mysql://localhost:3306/linker
@@ -18,5 +17,16 @@ spring :
       ddl-auto: update
       show_sql: true
       format_sql: true
-
-
+  # 메일서비스
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ggung0929mailing
+    password: odxxfbijynsjtjuz
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+          timeout: 5000

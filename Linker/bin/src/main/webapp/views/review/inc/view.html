@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title></title>
+</head>
+<body>
+	<!--<th:block th:replace="~{|header/header|}" />-->
+	<table class="review">
+		<tr>
+			<td></td>
+				<th:block th:replace="~{|review/inc/${reviewStr}|}" />
+			</td>
+		</tr>
+	</table>
+	<!--<th:block th:replace="~{|footer/footer|}" />-->
+</body>
+</html>
