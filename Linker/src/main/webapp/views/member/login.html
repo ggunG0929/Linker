@@ -7,6 +7,7 @@
 </head>
 
 <body>
+	<!-- 세션이 없는 경우 -->
 	<div th:unless="${member}">
 		<h2>로그인</h2>
 		<form method="post">
@@ -24,10 +25,12 @@
 		</form>
 		<div class="btn-container">
 			<button type="button" onclick="window.location.href='/member/join'">회원가입</button>
-			<button type="button">아이디 찾기</button>
-			<button type="button">비밀번호 찾기</button>
+			<button type="button">아이디 찾기(아직)</button>
+			<button type="button">비밀번호 찾기(아직)</button>
 		</div>
 	</div>
+
+	<!-- 세션이 있는 경우 -->
 	<div th:if="${member}">
 		<h2>로그인</h2>
 		<p>[[${member.memberName}]]님, 어서오세요!</p>
@@ -36,30 +39,6 @@
 			<button type="button" onclick="window.location.href='/member/logout'">로그아웃</button>
 		</div>
 	</div>
-
-	<script>
-		document.querySelector('form').addEventListener('submit', function (e) {
-			e.preventDefault();
-			var formData = new FormData(this);
-			fetch('/member/login', {
-				method: 'POST',
-				body: formData
-			})
-				.then(response => response.json())
-				.then(data => {
-					if (data.success) {
-						alert('로그인에 성공했습니다.');
-						// 새로고침을 해주어야 세션정보에 따라 페이지가 바뀜
-						window.location.href = '/member/login';
-					} else {
-						alert('로그인에 실패했습니다.\n아이디와 비밀번호를 확인하세요.');
-					}
-				})
-				.catch(error => {
-					console.error('Error:', error);
-				});
-		});
-	</script>
 </body>
 
 </html>
