@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>[[${lab.labName}]]</title>
+</head>
+<body>
+<h1>"[[${lab.labName}]]"의 페이지입니다.</h1>
+<p>
+	<button type="button" th:onclick="'window.location.href=\'/lab/' + ${lab.labId} + '/join\''">학원가입</button>
+</p>
+<!-- 비회원 -->
+<th:block th:if="${sessionMember == null}">
+	<p>사이트에 가입해주세요</p>
+</th:block>
+<!-- 학원 비등록 회원 -->
+<th:block th:if="${sessionMember != null and sessionLabMember == null}">
+	<p>학원페이지에 등록해주세요</p>
+</th:block>
+<!-- 등록 대기 회원 -->
+<th:block th:if="${sessionLabMember != null and sessionLabMember.labMemberType == 0}">
+	<p>조금만 기다려주세요</p>
+</th:block>
+<!-- 학원 수강생 회원 -->
+<th:block th:if="${sessionLabMember != null and sessionLabMember.labMemberType == 3}">
+	<p>클래스를 들어주세요</p>
+</th:block>
+<!-- 학원 강사 회원 -->
+<th:block th:if="${sessionLabMember != null and sessionLabMember.labMemberType == 2}">
+	<p>강의를 올려주세요</p>
+</th:block>
+<!-- 학원 원장 회원 -->
+<th:block th:if="${sessionLabMember != null and sessionLabMember.labMemberType == 1}">
+	<p>강사를 고용하고 학생들을 유치하세요</p>
+	<button type="button" th:onclick="'window.location.href=\'/lab/' + ${lab.labId} + '/member\''">수강생관리</button>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>공지사항 상세보기</title>
+</head>
+<body>
+    <h1>공지사항 상세보기</h1>
+    <table>
+        <tr>
+            <th>제목:</th>
+            <td th:text="${notice.noticeTitle}">제목 없음</td>
+        </tr>
+        <tr>
+            <th>내용:</th>
+            <td th:text="${notice.noticeContent}">내용 없음</td>
+        </tr>
+        <tr>
+            <th>작성일:</th>
+            <td th:text="${notice.noticeRegDate}">-</td>
+        </tr>
+    </table>
+    <button type="button" onclick="return confirm('수정하시겠습니까?')"><a th:href="@{/notice/modify/{id}(id=${notice.noticeId})}">수정</a></button>
+    <button type="button" onclick="return confirm('삭제하시겠습니까?')"><a th:href="@{/notice/delete/{id}(id=${notice.noticeId})}">삭제</a></button>
+    <a th:href="@{/notice/list}">목록으로</a>
+</body>
+</html>

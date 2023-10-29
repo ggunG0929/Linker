@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>로그인</title>
+</head>
+
+<body>
+	<!-- 세션이 없는 경우 -->
+	<div th:unless="${member}">
+		<h2>로그인</h2>
+		<form method="post">
+			<table>
+				<tr>
+					<td>ID</td>
+					<td><input type="text" name="memberId" required></td>
+					<td rowspan="2"><button type="submit">로그인</button></td>
+				</tr>
+				<tr>
+					<td>PW</td>
+					<td><input type="password" name="memberPw" required></td>
+				</tr>
+			</table>
+		</form>
+		<div class="btn-container">
+			<button type="button" onclick="window.location.href='/member/join'">회원가입</button>
+			<button type="button">아이디 찾기(아직)</button>
+			<button type="button">비밀번호 찾기(아직)</button>
+		</div>
+	</div>
+	
+	<!-- 세션이 있는 경우 -->
+	<div th:if="${member}">
+		<h2>로그인</h2>
+		<p>[[${member.memberName}]]님, 어서오세요!</p>
+		<div class="btn-container">
+			<button type="button" onclick="window.location.href='/member/mypage'">마이페이지</button>
+			<button type="button" onclick="window.location.href='/member/logout'">로그아웃</button>
+		</div>
+	</div>
+</body>
+
+</html>
