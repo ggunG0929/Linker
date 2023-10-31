@@ -24,7 +24,6 @@ public class MailService {
 		message.setTo(to);
 		message.setSubject(subject);
 		message.setText(text);
-
 		sender.send(message);
 	}
 }

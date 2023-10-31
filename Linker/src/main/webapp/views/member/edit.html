@@ -20,10 +20,10 @@
 					<th:block th:if="${member.memberType==1}">
 						원장님
 					</th:block>
-					<th:block th:unless="${member.memberType==2}">
+					<th:block th:if="${member.memberType==2}">
 						강사님
 					</th:block>
-					<th:block th:unless="${member.memberType==3}">
+					<th:block th:if="${member.memberType==3}">
 						수강생
 					</th:block>
 				</td>

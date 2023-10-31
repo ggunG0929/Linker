@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<script src="https://code.jquery.com/jquery-3.7.1.js" 
+ integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" 
+ crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/teacher.js"></script>
+</head>
+<body>
+	<input type="hidden" th:value="${labId}" id="labId" />
+	<table>
+		<tr>
+			<td colspan="3">
+				<h2>강사 관리</h2>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<form th:action="|/lab/${labId}/teacher|" onsubmit="return valid()">
+					<input type="text" name="keyword" id="search"
+					placeholder="강사명을 입력해주세요." />
+					<input type="submit" value="검색" />
+				</form>
+			</td>
+			<td>
+				<select name="state" id="labMemberStatus" onchange="statusChange()">
+					<option th:selected="${state}" value="0">재직</option>
+					<option th:selected="${state}" value="1">퇴직</option>
+				</select>
+			</td>
+			<td>
+				<a th:href="|/lab/${labId}/teacher|">전체 목록</a>
+			</td>
+		</tr>
+		<!-- 강사 없을 시 -->
+		<th:block th:if="${#arrays.isEmpty(labTeachersInfo)}">
+		<tr>
+			<td>강사를 등록해주세요</td>
+		</tr>
+		</th:block>
+		<!-- 강사 있을 시 -->
+		<th:block th:unless="${#arrays.isEmpty(labTeachersInfo)}">
+			<tr>
+				<td>프로필</td>
+				<td>강사명</td>
+				<td>이메일</td>
+				<td>등록일</td>
+				<td>재직 상태</td>
+			</tr>
+			<tr th:each="member,i:${labTeachersInfo}"
+			th:id="|detail${member.memberId}|">
+				<td>
+					<img th:src="|/upload_file/${member.memberProfile}|" alt="프로필" />
+				</td>
+				<td th:text="${member.memberName}"></td>
+				<td th:text="${member.memberEmail}"></td>
+				<td th:text="${member.memberRegDate}"></td>
+				<th:block th:if="${pageData eq 0}">
+					<td th:if="${labTeachers[i.index].labMemberStatus eq 0}">
+						재직
+					</td>
+					<td th:unless="${labTeachers[i.index].labMemberStatus eq 0}">
+						퇴직
+					</td>
+				</th:block>
+				<th:block th:unless="${pageData eq 0}">
+					<td th:if="${labTeachers.content[i.index].labMemberStatus eq 0}">
+						재직
+					</td>
+					<td th:unless="${labTeachers.content[i.index].labMemberStatus eq 0}">
+						퇴직
+					</td>
+				</th:block>
+				<td>
+					<input type="hidden" th:value="${member.memberId}" />
+				</td>
+			</tr>
+			<tr th:if="${pageData eq 1}">
+				<td>
+					<a th:href="|/lab/${labId}/teacher?page=0&state=${state}|"><<</a>
+					<a id="left" 
+					th:href="|/lab/${labId}/teacher?page=${labTeachers.number - 1}&state=${state}|"><</a>
+					<th:block th:each="i:${#numbers.sequence(
+					(labTeachers.number ge labTeachers.totalPages - 5) ?
+					((labTeachers.totalPages - 4 lt 0) ?
+					1 : labTeachers.totalPages - 4) : labTeachers.number + 1, 
+					(labTeachers.number ge labTeachers.totalPages - 5) ?
+					labTeachers.totalPages : labTeachers.totalPages - 1)}">
+						<a th:if="${i eq labTeachers.number + 1}"
+						th:href="|/lab/${labId}/teacher?page=${i - 1}&state=${state}|" th:text="|[${i}]|"></a>
+						<a th:unless="${i eq labTeachers.number + 1}"
+						th:href="|/lab/${labId}/teacher?page=${i - 1}&state=${state}|" th:text="${i}"></a>
+					</th:block>
+					<a id="right" 
+					th:href="|/lab/${labId}/teacher?page=${labTeachers.number + 1}&state=${state}|">></a>
+					<a th:href="|/lab/${labId}/teacher?page=${labTeachers.totalPages - 1}&state=${state}|">
+						>>
+					</a>
+					<input type="hidden" th:value="${labTeachers.totalPages - 1}" id="totalPage" />
+				</td>
+			</tr>
+		</th:block>
+	</table>
+</body>
+</html>

@@ -1,8 +1,12 @@
 package Linker.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import Linker.model.Lab;
 import Linker.model.LabMember;
@@ -72,26 +77,26 @@ public class LabController {
 //		Member sessionMember = (Member) session.getAttribute("sessionMember");
 		String sessionId = (String) session.getAttribute("sessionId");
 		Member sessionMember = memberRepository.findById(sessionId).get();
-		if(sessionMember != null) {
+		if (sessionMember != null) {
 			model.addAttribute("sessionMember", sessionMember);
 			// 세션이 확인되면 학원회원페이지에서 타입정보 가져오기
 			LabMember sessionLabMember = labMemberRepository.findByMemberIdAndLabId(sessionMember.getMemberId(), labId);
-			if(sessionLabMember != null) {
+			if (sessionLabMember != null) {
 				model.addAttribute("sessionLabMember", sessionLabMember);
-			}			
+			}
 		}
 		Lab lab = labRepository.findById(labId).get();
 		model.addAttribute("lab", lab);
 		return "lab/main";
 	}
-	
+
 	@RequestMapping("/{labId}/join")
 	String labJoin(@PathVariable("labId") int labId, Model model, HttpSession session) {
 		String sessionId = (String) session.getAttribute("sessionId");
 		String msg = "로그인이 필요합니다.";
 		String goUrl = "/member/login";
 		// 세션없음
-		if(sessionId == null) {
+		if (sessionId == null) {
 			model.addAttribute("msg", msg);
 			model.addAttribute("goUrl", goUrl);
 			return "member/alert";
@@ -99,7 +104,7 @@ public class LabController {
 		goUrl = "/lab/" + labId;
 		// 가입승인대기상태
 		LabMember labMember = labMemberRepository.findByMemberIdAndLabId(sessionId, labId);
-		if(labMember != null) {
+		if (labMember != null) {
 			msg = "이미 가입신청을 하셨습니다.";
 			model.addAttribute("msg", msg);
 			model.addAttribute("goUrl", goUrl);
@@ -123,26 +128,75 @@ public class LabController {
 	@GetMapping("/{labId}/member")
 	String LabMemberList(@PathVariable("labId") int labId, HttpSession session, Model model) {
 		// 학원회원테이블에서 학원에 연결된 정보 가져오기
-        List<LabMember> labMembers = labMemberRepository.findAllByLabId(labId);
-        model.addAttribute("labMembers", labMembers);
+		List<LabMember> labMembers = labMemberRepository.findAllByLabId(labId);
+		model.addAttribute("labMembers", labMembers);
 		return "lab/member";
-    }
-	
+	}
+
 	// 학원가입승인
-    @RequestMapping("/{labId}/member/{memberId}/confirm")
-    public String joinLabConfirm(@PathVariable("labId") int labId, @PathVariable("memberId") String memberId, Model model) {
-        Member member = memberRepository.getById(memberId);
-        String msg = "회원이 존재하지 않습니다.";
-        String goUrl = "/lab/"+labId+"/member";
-        if (member != null) {
-        	// 학원회원테이블에서 타입정보를 대기상태에서 회원타입으로 변경
-            LabMember labMember = labMemberRepository.findByMemberIdAndLabId(memberId, labId);
-            labMember.setLabMemberType(member.getMemberType());
-            labMemberRepository.save(labMember);
-            msg = "가입을 승인했습니다.";
-        }
+	@RequestMapping("/{labId}/member/{memberId}/confirm")
+	public String joinLabConfirm(@PathVariable("labId") int labId, @PathVariable("memberId") String memberId,
+			Model model) {
+		Member member = memberRepository.getById(memberId);
+		String msg = "회원이 존재하지 않습니다.";
+		String goUrl = "/lab/" + labId + "/member";
+		if (member != null) {
+			// 학원회원테이블에서 타입정보를 대기상태에서 회원타입으로 변경
+			LabMember labMember = labMemberRepository.findByMemberIdAndLabId(memberId, labId);
+			labMember.setLabMemberType(member.getMemberType());
+			labMemberRepository.save(labMember);
+			msg = "가입을 승인했습니다.";
+		}
 		model.addAttribute("msg", msg);
 		model.addAttribute("goUrl", goUrl);
 		return "member/alert";
-    }
+	}
+
+	// 강사 관리
+	@GetMapping("{labId}/teacher")
+	String teacher(Pageable pageable, @PathVariable int labId,
+			@RequestParam(name = "keyword", defaultValue = "") String keyword,
+			@RequestParam(name = "state", defaultValue = "0") int state, Model md) {
+		int labMemberType = 2;
+		pageable = PageRequest.of(pageable.getPageNumber(), 5);
+		if (keyword.equals("")) {
+			// 학원 소속 강사 회원정보를 개별적으로 담을 리스트
+			List<Member> labTeachersInfo = new ArrayList<>();
+			Page<LabMember> labTeachers = labMemberRepository
+					.findAllByLabMemberTypeAndLabIdAndLabMemberStatus(labMemberType, labId, state, pageable);
+			for (LabMember member : labTeachers.getContent()) {
+				labTeachersInfo.add(memberRepository.findByMemberId(member.getMemberId()));
+			}
+			md.addAttribute("pageData", 1);
+			md.addAttribute("labTeachers", labTeachers);
+			md.addAttribute("labTeachersInfo", labTeachersInfo);
+		} else if (!keyword.equals("")) {
+			// 검색어 입력 시 회원 목록에서 이름으로 찾음
+			List<Member> members = memberRepository.findByMemberNameLike("%" + keyword + "%");
+			List<Member> labTeachersInfo = new ArrayList<>();
+			List<LabMember> labTeachers = new ArrayList<>();
+			// 검색된 회원 중 해당 학원에 재직 중인지 검증
+			for (Member member : members) {
+				LabMember labMem = labMemberRepository.findByMemberIdAndLabId(member.getMemberId(), labId);
+				labTeachers.add(labMem);
+
+				if (labMem != null) {
+					labTeachersInfo.add(member);
+				}
+			}
+			md.addAttribute("pageData", 0);
+			md.addAttribute("labTeachers", labTeachers);
+			md.addAttribute("labTeachersInfo", labTeachersInfo);
+		}
+		md.addAttribute("state", state);
+		md.addAttribute("labId", labId);
+		return "lab/teacher";
+	}
+
+	// 강사 상세보기
+	@GetMapping("{labId}/teacherDetail/{memberId}")
+	String teacherDetail(@PathVariable int labId, @PathVariable String memberId, Model md) {
+
+		return "lab/teacherDetail";
+	}
 }
