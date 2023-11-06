@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>클래스개설</title>
+
+</head>
+
+<body>
+    <h1>동영상 재생</h1>
+    <video controls width="640" height="360" autoplay>
+        <source th:src="|/upload_file/${aviFileName}|" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</body>
+
+</html>

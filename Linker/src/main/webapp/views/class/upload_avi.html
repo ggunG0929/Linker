@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>동영상 업로드</title>
+</head>
+<body>
+    <h1>동영상 업로드</h1>
+    <form  method="post" enctype="multipart/form-data">
+        <label for="className">강의명:</label>
+        <input type="text" id="className" name="className" required><br>
+        
+        <label for="aviName">동영상 제목:</label>
+        <input type="text" id="aviName" name="aviName" required><br>
+        
+        <label for="classCount">강의 차수:</label>
+        <input type="number" id="classCount" name="classCount" required><br>
+        
+        <label for="aviFile">동영상 파일:</label>
+        <input type="file" id="aviFile" name="aviFile"  required><br>
+      
+        
+        <input type="submit" value="업로드">
+    </form>
+</body>
+</html>
