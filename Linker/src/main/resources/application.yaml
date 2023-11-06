@@ -17,6 +17,12 @@ spring :
       ddl-auto: update
       show_sql: true
       format_sql: true
+  
+  servlet:
+    multipart:
+      max-file-size: 100MB   # 최대 업로드 파일 크기
+      max-request-size: 100MB  # 요청 전체 크기 (모든 파일 포함)
+  
   # 메일서비스
   mail:
     host: smtp.gmail.com
